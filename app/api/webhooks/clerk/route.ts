@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 // import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/clerk-sdk-node";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, first_name, last_name, username } =
       evt.data;
-
+    console.log("Hitted")
     const user = {
       clerkId: id,
       email: email_addresses[0].email_address,
@@ -73,14 +74,14 @@ export async function POST(req: Request) {
 
     const newUser = await createUser(user);
 
-    // // Set public metadata
-    // if (newUser) {
-    //   await clerkClient.users.updateUserMetadata(id, {
-    //     publicMetadata: {
-    //       userId: newUser._id,
-    //     },
-    //   });
-    // }
+    // Set public metadata
+    if (newUser) {
+      await clerkClient.users.updateUserMetadata(id, {
+        publicMetadata: {
+          userId: newUser._id,
+        },
+      });
+    }
 
     return NextResponse.json({ message: "OK", user: newUser });
   }
